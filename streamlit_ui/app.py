@@ -36,7 +36,7 @@ def signup_view():
         elif not is_strong_password(password):
             st.error("Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.")
         else:
-            response = requests.post("http://localhost:5000/user/SignUp", json={
+            response = requests.post("http://127.0.0.1:5000/user/SignUp", json={
                 "username": username.strip(),
                 "email": email.strip(),
                 "password": password
@@ -63,14 +63,14 @@ def login_view():
         if not email or not password:
             st.error("All fields are required!")
         else:
-            response = requests.post("http://localhost:5000/user/Login", json={
+            response = requests.post("http://127.0.0.1:5000/user/Login", json={
                 "email": email,
                 "password": password
             })
             if response.status_code == 200:
                 st.success("Login successful!")
                 user_data = response.json()
-                print('User data: ', user_data)
+                # print('User data: ', user_data)
                 user_id = user_data.get("user_id")
                 
                 st.session_state.is_logged_in = True
@@ -100,7 +100,7 @@ def create_notes_view():
     title = st.text_input("Title")
     description = st.text_input("Description")
     if st.button("Create Note"):
-        response = requests.post(f"http://localhost:5000/user/notes/{st.session_state.user_id}", json={
+        response = requests.post(f"http://127.0.0.1:5000/user/notes/{st.session_state.user_id}", json={
             "user_id": st.session_state.user_id,
             "title": title,
             "description": description
@@ -128,9 +128,9 @@ def fetch_notes_view():
     if st.button("Create Note"):
         go_to("create_note", st.session_state.user_id)
 
-    print('id: ', st.session_state.user_id)
+    # print('id: ', st.session_state.user_id)
 
-    response = requests.get(f"http://localhost:5000/user/notes/{st.session_state.user_id}")
+    response = requests.get(f"http://127.0.0.1:5000/user/notes/{st.session_state.user_id}")
 
     if response.status_code == 200:
         raw_notes = response.json()
@@ -165,7 +165,7 @@ def fetch_notes_view():
 
             # Delete button
             if col4.button("🗑️", key=f"delete_{row['note_id']}"):
-                delete_response = requests.delete(f"http://localhost:5000/user/notes/{st.session_state.user_id}/{row['note_id']}")
+                delete_response = requests.delete(f"http://127.0.0.1:5000/user/notes/{st.session_state.user_id}/{row['note_id']}")
                 if delete_response.status_code == 201:
                     st.success("Note deleted!")
                     st.rerun()
@@ -193,7 +193,7 @@ def edit_note_view():
     description = st.text_input("Description", value=note["description"])
 
     if st.button("Update Note"):
-        response = requests.put(f"http://localhost:5000/user/notes/{st.session_state.user_id}/{note['note_id']}", json={
+        response = requests.put(f"http://127.0.0.1:5000/user/notes/{st.session_state.user_id}/{note['note_id']}", json={
             "title": title,
             "description": description
         })
@@ -203,7 +203,6 @@ def edit_note_view():
             st.rerun()
         else:
             st.error("Failed to update note.")
-
 
 
 # 🚦 Page Routing
@@ -217,16 +216,3 @@ elif st.session_state.page == "fetch_note":
     fetch_notes_view()
 elif st.session_state.page == "edit_note":
     edit_note_view()
-
-# # Main app logic
-# st.sidebar.title("Navigation")
-# choice = st.sidebar.selectbox("Go to", ("Sign Up", "Login", "Create Note", "Fetch Notes"))
-
-# if choice == "Sign Up":
-#     signup_view()
-# elif choice == "Login":
-#     login_view()
-# elif choice == "Create Note":
-#     create_notes_view()
-# elif choice == "Fetch Notes":
-#     fetch_notes_view()
