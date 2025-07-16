@@ -1,5 +1,3 @@
-echo "# NoteMaker" > README.md
-
 # NoteMaker 📝
 
 A simple note-taking web app built using Flask and Streamlit.
