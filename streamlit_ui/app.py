@@ -5,6 +5,9 @@ import pandas as pd
 import numpy as np
 from utils.signup_validation import is_valid_email, is_strong_password, get_user_id
 
+# ----- Config -----
+st.set_page_config(page_title="NotesMaker", layout="centered")
+
 # Initialize view state
 if "page" not in st.session_state:
     st.session_state.page = "signup"
