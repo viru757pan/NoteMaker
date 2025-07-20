@@ -23,4 +23,5 @@ def create_login():
         print('res:', res)
         return jsonify(res), 404
     # print('res/login:', res)
-    return jsonify({"message":"User Login Successfull!", "id":res["id"], "user_id":res["user_id"]}), 200
+    # return jsonify({"message":"User Login Successfull!", "id":res["id"], "user_id":res["user_id"], "token":res["token"]}), 200
+    return jsonify({"message":"User Login Successfull!", "user_id":res["user_id"], "token":res["token"]}), 200

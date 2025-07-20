@@ -75,7 +75,8 @@ def login_view():
                 user_data = response.json()
                 # print('User data: ', user_data)
                 user_id = user_data.get("user_id")
-                
+
+                st.session_state.jwt_token = response.json().get("token")
                 st.session_state.is_logged_in = True
                 st.session_state.user_id = user_id
                 time.sleep(1)
@@ -94,6 +95,8 @@ def create_notes_view():
         if st.button("Go to Login"):
             go_to("login")
         return
+    
+    headers = {"Authorization": f"Bearer {st.session_state.jwt_token}"}
 
     st.title("📝 Create Note")
 
@@ -103,11 +106,11 @@ def create_notes_view():
     title = st.text_input("Title")
     description = st.text_input("Description")
     if st.button("Create Note"):
-        response = requests.post(f"http://127.0.0.1:5000/user/notes/{st.session_state.user_id}", json={
+        response = requests.post(f"http://127.0.0.1:5000/user/notes/", json={
             "user_id": st.session_state.user_id,
             "title": title,
             "description": description
-        })
+        }, headers=headers)
         if response.status_code == 200 or response.status_code == 201:
             st.success("Note created!")
             go_to("fetch_note", st.session_state.user_id)
@@ -120,6 +123,8 @@ def fetch_notes_view():
         if st.button("Go to Login"):
             go_to("login")
         return
+
+    headers = {"Authorization": f"Bearer {st.session_state.jwt_token}"}
     
     st.title("📒 Your Notes")
 
@@ -133,7 +138,7 @@ def fetch_notes_view():
 
     # print('id: ', st.session_state.user_id)
 
-    response = requests.get(f"http://127.0.0.1:5000/user/notes/{st.session_state.user_id}")
+    response = requests.get(f"http://127.0.0.1:5000/user/notes/", headers=headers)
 
     if response.status_code == 200:
         raw_notes = response.json()
@@ -168,7 +173,7 @@ def fetch_notes_view():
 
             # Delete button
             if col4.button("🗑️", key=f"delete_{row['note_id']}"):
-                delete_response = requests.delete(f"http://127.0.0.1:5000/user/notes/{st.session_state.user_id}/{row['note_id']}")
+                delete_response = requests.delete(f"http://127.0.0.1:5000/user/notes/{row['note_id']}", headers=headers)
                 if delete_response.status_code == 201:
                     st.success("Note deleted!")
                     st.rerun()
@@ -186,6 +191,8 @@ def edit_note_view():
             go_to("login")
         return
     
+    headers = {"Authorization": f"Bearer {st.session_state.jwt_token}"}
+    
     note = st.session_state.get("editing_note")
     if note is None or note.empty:
         st.error("No note selected for editing.")
@@ -196,10 +203,10 @@ def edit_note_view():
     description = st.text_input("Description", value=note["description"])
 
     if st.button("Update Note"):
-        response = requests.put(f"http://127.0.0.1:5000/user/notes/{st.session_state.user_id}/{note['note_id']}", json={
+        response = requests.put(f"http://127.0.0.1:5000/user/notes/{note['note_id']}", json={
             "title": title,
             "description": description
-        })
+        }, headers=headers)
         if response.status_code == 201:
             st.success("Note updated successfully!")
             st.session_state.page = "fetch_note"

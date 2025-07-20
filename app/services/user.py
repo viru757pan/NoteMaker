@@ -1,5 +1,6 @@
 from app.stores.user import create_signUp_store, create_login_store
 from app.utils.user_validation import user_validator
+from app.utils.create_token import generate_token
 
 # create signUp
 def create_signUp_service(data):
@@ -18,9 +19,11 @@ def create_login_service(data):
             return {"error": "Invalid email or password"}
 
         user_id = user_data['user_id']
-        result = create_login_store(user_id, data)
+        # result = create_login_store(user_id, data)
+        token = generate_token(user_id)
         # print("res: ", result)
-        return {"id": result[0], "user_id": user_id, "message": result[1]}
+        # return {"id": result[0], "user_id": user_id, "message": result[1], "token": token}
+        return {"user_id": user_id, "message": "User Login Successfull!", "token": token}
     except Exception as e:
         print('Login Error:', str(e))
         return {"error": str(e)}
